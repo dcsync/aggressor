@@ -1,0 +1,82 @@
+FeKern.sys	FireEye
+WFP_MRT.sys	FireEye
+eaw.sys	Raytheon Cyber Solutions
+rvsavd.sys	CJSC Returnil Software
+dgdmk.sys	Verdasys Inc.
+atrsdfw.sys	Altiris (Symantec)
+mbamwatchdog.sys	Malwarebytes
+edevmon.sys	ESET
+ehdrv.sys	ESET
+SentinelMonitor.sys	SentinelOne
+edrsensor.sys	BitDefender SRL
+HexisFSMonitor.sys	Hexis Cyber Solutions
+CyOptics.sys	Cylance Inc.
+CyProtectDrv32.sys	Cylance Inc.
+CyProtectDrv64.sys	Cylance Inc.
+aswSP.sys	Avast
+mfeaskm.sys	McAfee
+mfencfilter.sys	McAfee
+groundling32.sys	Dell Secureworks
+groundling64.sys	Dell Secureworks
+avgtpx86.sys	AVG Technologies
+avgtpx64.sys	AVG Technologies
+virtualagent.sys	Symantec 
+pgpwdefs.sys	Symantec
+GEProtection.sys	Symantec
+diflt.sys	Symantec
+sysMon.sys	Symantec
+ssrfsf.sys	Symantec
+emxdrv2.sys	Symantec
+reghook.sys	Symantec
+spbbcdrv.sys	Symantec
+bhdrvx86.sys	Symantec
+bhdrvx64.sys	Symantec
+SISIPSFileFilter.sys	Symantec
+symevent.sys	Symantec
+vxfsrep.sys	Symantec
+VirtFile.sys	Symantec
+SymAFR.sys	Symantec
+symefasi.sys	Symantec
+symefa.sys	Symantec
+symefa64.sys	Symantec
+SymHsm.sys	Symantec
+evmf.sys	Symantec
+GEFCMP.sys	Symantec
+VFSEnc.sys	Symantec
+pgpfs.sys	Symantec
+fencry.sys	Symantec
+symrg.sys	Symantec
+SAFE-Agent.sys	SAFE-Cyberdefense
+CybKernelTracker.sys	CyberArk Software
+klifks.sys	Kaspersky
+klifaa.sys	Kaspersky
+Klifsm.sys	Kaspersky
+SAVOnAccess.sys	Sophos
+savonaccess.sys	Sophos
+sld.sys	Sophos
+ssfmonm.sys	Webroot Software, Inc.
+CarbonBlackK.sys	Carbon Black
+CRExecPrev.sys	Cybereason
+im.sys	CrowdStrike
+csagent.sys	CrowdStrike
+cfrmd.sys	Comodo Security Solutions
+cmdccav.sys	Comodo Security Solutions
+cmdguard.sys	Comodo Security Solutions
+CmdMnEfs.sys	Comodo Security Solutions
+MyDLPMF.sys	Comodo Security Solutions
+PSINPROC.SYS	Panda Security
+PSINFILE.SYS	Panda Security
+amfsm.sys	Panda Security
+amm8660.sys	Panda Security
+amm6460.sys	Panda Security
+fsgk.sys	F-Secure
+fsatp.sys	F-Secure
+fshs.sys	F-Secure
+esensor.sys	Endgame
+csacentr.sys	Cisco
+csaenh.sys	Cisco
+csareg.sys	Cisco
+csascr.sys	Cisco
+csaav.sys	Cisco
+csaam.sys	Cisco
+parity.sys	Carbon Black Protect

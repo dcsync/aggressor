@@ -1,0 +1,194 @@
+$enable_initial_notifications = true;
+$enable_output_notifications = false;
+$enable_disconnect_notifications = true;
+$enable_output_beep = false;
+$enable_disconnect_beep = false;
+$enable_initial_beep = false;
+
+@computer_filter = @();
+
+sub notify {
+	$title = $1;
+	$body = $2;
+	exec(@('notify-send', $title, $body));
+}
+
+sub dbool {
+	return iff($1, 'true', 'false');
+}
+
+sub rbool {
+	return iff($1 eq 'true', true, false);
+}
+
+sub beepbeep {
+	$bid = $1;
+
+	if ($bid) {
+		%info = beacon_info($bid);
+		$name = %info['computer'];
+		if (@computer_filter && size(@computer_filter)) {
+			if (!(uc($name) in @computer_filter)) {
+				return;
+			}
+		}
+	}
+
+	sub forked {
+		# make some really annoying beeps
+		for ($i = 0; $i < 3; $i++) {
+			exec(@('beep'));
+			sleep(500);
+		}
+
+		#for ($i = 0; $i < 8; $i++) {
+		#	exec(@('beep'));
+		#	sleep(500);
+		#}
+
+		#for ($i = 0; $i < 3; $i++) {
+		#	exec(@('beep'));
+		#	sleep(1000);
+		#}
+
+		#for ($i = 0; $i < 3; $i++) {
+		#	exec(@('beep'));
+		#	sleep(2000);
+		#}
+	}
+
+	fork(&forked);
+}
+
+on beacon_output {
+	$bid = $1;
+
+	if ($enable_output_notifications) {
+		$name = beacon_info($bid)['computer'];
+		notify('!!!', "Beacon output received from $name" . '!');
+	}
+
+	if ($enable_output_beep) {
+		beepbeep($bid);
+	}
+}
+
+on disconnect {
+	if ($enable_disconnect_notifications) {
+		notify('Client disconnected!', '!!!');
+	}
+
+	if ($enable_disconnect_beep) {
+		beepbeep();
+	}
+}
+
+on beacon_initial {
+	global('$enable_initial_notifications');
+	local('$bid $user $internal $computer $title $details');
+
+	$bid = $1;
+
+	if ($enable_initial_notifications) {
+		$internal = beacon_info($bid, 'internal');
+		$computer = beacon_info($bid, 'computer');
+		$user = beacon_info($bid, 'user');
+
+		$title = 'New beacon!';
+		$details = "From: " . $user . "@" . $computer . " (" . $internal . ")";
+
+		notify($title, $details);
+	}
+
+	if ($enable_initial_beep) {
+		beepbeep($1);
+	}
+}
+
+menubar("Notifications", "notifications", 2);
+
+popup notifications {
+    item "Off" {
+		$enable_initial_notifications = false;
+		$enable_output_notifications = false;
+		$enable_disconnect_notifications = false;
+		$enable_output_beep = false;
+		$enable_disconnect_beep = false;
+		$enable_initial_beep = false;
+    }
+
+    item "Important notifications" {
+		$enable_initial_notifications = true;
+		$enable_output_notifications = false;
+		$enable_disconnect_notifications = true;
+		$enable_output_beep = false;
+		$enable_disconnect_beep = false;
+		$enable_initial_beep = false;
+    }
+
+    item "Initial beep" {
+		$enable_initial_notifications = true;
+		$enable_output_notifications = false;
+		$enable_disconnect_notifications = true;
+		$enable_output_beep = false;
+		$enable_disconnect_beep = true;
+		$enable_initial_beep = true;
+    }
+
+    item "Full beep" {
+		$enable_initial_notifications = true;
+		$enable_output_notifications = true;
+		$enable_disconnect_notifications = true;
+		$enable_output_beep = true;
+		$enable_disconnect_beep = true;
+		$enable_initial_beep = true;
+    }
+
+	separator();
+
+    item "Settings" {
+		local('%defaults');
+
+		sub callback {
+			local('%options $button');
+
+			$button = $2;
+			%options = $3;
+
+			$enable_initial_notifications = rbool(%options['initial_notifications']);
+			$enable_output_notifications = rbool(%options['output_notifications']);
+			$enable_disconnect_notifications = rbool(%options['disconnect_notifications']);
+			$enable_output_beep = rbool(%options['output_beep']);
+			$enable_disconnect_beep = rbool(%options['disconnect_beep']);
+			$enable_initial_beep = rbool(%options['initial_beep']);
+			@computer_filter = split(',', uc(%options['filter']));
+		}
+
+		%defaults['initial_notifications'] = dbool($enable_initial_notifications);
+		%defaults['output_notifications'] = dbool($enable_output_notifications);
+		%defaults['disconnect_notifications'] = dbool($enable_disconnect_notifications);
+		%defaults['output_beep'] = dbool($enable_output_beep);
+		%defaults['disconnect_beep'] = dbool($enable_disconnect_beep);
+		%defaults['initial_beep'] = dbool($enable_initial_beep);
+		%defaults['filter'] = join(',', @computer_filter);
+
+		$dialog = dialog("Notifications", %defaults, &callback);
+		dialog_description($dialog);
+
+		drow_checkbox($dialog, 'initial_notifications', 'Initial notifications: ');
+		drow_checkbox($dialog, 'output_notifications', 'Output notifications: ');
+		drow_checkbox($dialog, 'disconnect_notifications', 'Disconnect notifications: ');
+		drow_checkbox($dialog, 'initial_beep', 'Initial beep: ');
+		drow_checkbox($dialog, 'output_beep', 'Output beep: ');
+		drow_checkbox($dialog, 'disconnect_beep', 'Disconnect beep: ');
+		drow_text($dialog, 'filter',  'Computer filter ');
+
+		dbutton_action($dialog, "OK");
+		dialog_show($dialog);
+    }
+
+    item "Test" {
+		notify('Test notification', 'Test');
+		beepbeep();
+    }
+}
