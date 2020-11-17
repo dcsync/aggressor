@@ -1,0 +1,58 @@
+# TODO dcom lateral movement
+# TODO look at rob fuller's privesc pdf
+# TODO get stickynotes (see /share/tools/powershell/threatexpress-misc/HostEnum.ps1)
+# TODO /share/tools/cobaltstrike/scripts/others/bytecod3r/Others/ProcessMonitor.cna
+# TODO /share/tools/cobaltstrike/scripts/others/bytecod3r/Others/PowerView3.cna and /share/tools/cobaltstrike/scripts/others/invokethreatguy/tevora-threat/PowerView.cna
+# TODO https://github.com/Raikia/CredNinja
+# TODO keybindings for tabs, script console, reload all scripts
+# TODO integrate persistence js python stuff
+# TODO get all downloads sync working
+# TODO archive files, keylogs, screenshots, logs, etc
+# TODO /share/tools/powershell/bashbunny-scripts/Get-IECreds.ps1
+# TODO /share/tools/powershell/FuzzySecurity-misc/Bypass-UAC/Bypass-UAC.ps1
+# TODO /share/tools/powershell/harmj0y-misc/Invoke-NetRipper.ps1
+# TODO /share/tools/powershell/rvrsh3ll-misc/Backdoor-ExcelAddIn.ps1
+# TODO /share/tools/powershell/rvrsh3ll-misc/Create-HotKeyLNK.ps1
+# TODO get credleak working
+# TODO nishang Check-VM
+# TODO microphone
+
+# Python API
+#$pycobalt_debug_on = true;
+$pycobalt_path = script_resource('pycobalt/aggressor');
+include($pycobalt_path . '/pycobalt.cna');
+
+# Stop all python scripts
+sub python_restart {
+	python(script_resource('all.py'), $fork_immediately => true);
+	python(script_resource('gui.py'));
+}
+
+command psa {
+	python_stop_all();
+}
+
+command pr {
+	python_restart();
+}
+
+python_restart();
+
+# Payloads
+include(script_resource("beacon_host_script.cna"));
+
+# Colorized output
+#include(script_resource("color_ps.cna"));
+include(script_resource("color_ls.cna"));
+
+# Privesc
+include(script_resource("elevate.cna"));
+
+# Little GUI things
+#include(script_resource("batch.gui.cna"));
+include(script_resource("notifications.gui.cna"));
+
+# Exfil
+include(script_resource("winscp.cna"));
+include(script_resource("sql.cna"));
+include(script_resource("downloads.gui.cna"));

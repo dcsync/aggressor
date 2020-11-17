@@ -1,0 +1,419 @@
+include(script_resource("utils.cna"));
+
+# powershell scripts
+$sqldump_ps1 = script_resource('powershell/SqlDump.ps1');
+
+# helper: run a SQL query
+# runsql(bid, query, outfile, server = '127.0.0.1', separator = ' ')
+sub runsql {
+	$bid = $1;
+	$query = $2;
+	$outfile = $3;
+	if ($4) {
+		$server = $4;
+	} else {
+		$server = '127.0.0.1';
+	}
+	if ($5) {
+		$separator = $5;
+	} else {
+		$separator = '`t';
+	}
+
+	$command = 'sqlcmd -k 1 -W -s "' . $separator . '" -S ' . $server . ' -E -Q "' . $query . '"';
+	if ($outfile) {
+		$command .= " > $outfile ";
+	}
+	$command .= " & ";
+	$command .= "echo query finished & ";
+
+	blog($bid, "Running SQL: $query");
+	bshell!($bid, $command);
+}
+
+# run a SQL query
+# usage: sql <query> [server]
+alias sql {
+	$bid = $1;
+	$query = $2;
+	$server = $3;
+
+	# check args
+	if (!$query) {
+		blog($bid, "sql <query> [out file] [server]");
+		return;
+	}
+
+	runsql($bid, $query, $null, $server);
+}
+
+# run a SQL query. put output in file
+# usage: sqlto <query> <out file> [server]
+alias sqlto {
+	$bid = $1;
+	$query = $2;
+	$outfile = $3;
+	$server = $4;
+
+	# check args
+	if (!$query || !$outfile) {
+		blog($bid, "sqlto <query> <out file> [server]");
+		return;
+	}
+
+	runsql($bid, $query, $outfile, $server);
+}
+
+# get list of databases
+# usage: sql-databases [server]
+alias sql-databases {
+	$bid = $1;
+	$server = $2;
+
+	runsql($bid, "SELECT name FROM master.dbo.sysdatabases", $null, $server);
+}
+
+# get list of principal databases
+# usage: sql-principals [server]
+alias sql-principals {
+	$bid = $1;
+	$server = $2;
+
+	$query = "SELECT master.dbo.sysdatabases.name ";
+	$query .= "FROM master.dbo.sysdatabases ";
+	$query .= "LEFT OUTER JOIN sys.database_mirroring ON master.dbo.sysdatabases.dbid = sys.database_mirroring.database_id ";
+	$query .= "WHERE sys.database_mirroring.mirroring_role_desc = 'PRINCIPAL' ";
+	$query .= "OR sys.database_mirroring.mirroring_role_desc IS NULL ";
+
+	runsql($bid, $query, $null, $server);
+}
+
+# get database mirroring info
+# usage: sql-mirroring [server]
+alias sql-mirroring {
+	$bid = $1;
+	$server = $2;
+
+	$query = 'SELECT master.dbo.sysdatabases.name, sys.database_mirroring.mirroring_role_desc ';
+	$query .= 'FROM master.dbo.sysdatabases ';
+	$query .= 'LEFT JOIN sys.database_mirroring ';
+	$query .= 'ON sys.database_mirroring.database_id = master.dbo.sysdatabases.dbid';
+
+	runsql($bid, $query, $null, $server, ' ');
+}
+
+# list all tables in a database
+# usage: sql-alltables <database> [server]
+alias sql-alltables {
+	$bid = $1;
+	$database = $2;
+	$server = $3;
+
+	# check args
+	if (!$database) {
+		blog($bid, "sql-alltables <database> [server]");
+		return;
+	}
+
+	$query = "USE $database ; ";
+	$query .= "SELECT DISTINCT table_name FROM information_schema.tables WHERE table_type='BASE TABLE'";
+
+	runsql($bid, $query, $null, $server);
+}
+
+# list tables in a schema
+# usage: sql-tables <database> <schema> [server]
+alias sql-tables {
+	$bid = $1;
+	$database = $2;
+	$schema = $3;
+	$server = $4;
+
+	# check args
+	if (!$database || !$schema) {
+		blog($bid, "sql-tables <database> <schema> [server]");
+		return;
+	}
+
+	$query = "USE $database ; ";
+	$query .= "SELECT name FROM sys.objects WHERE schema_id = SCHEMA_ID('" . $schema . "') AND type_desc = 'USER_TABLE'";
+
+	runsql($bid, $query, $null, $server);
+}
+
+# list all objects in a schema
+# usage: sql-objects <database> <schema> [server]
+alias sql-objects {
+	$bid = $1;
+	$database = $2;
+	$schema = $3;
+	$server = $4;
+
+	# check args
+	if (!$database || !$schema) {
+		blog($bid, "sql-objects <database> <schema> [server]");
+		return;
+	}
+
+	$query = "USE $database ; ";
+	$query .= "SELECT name,type_desc FROM sys.objects WHERE schema_id = SCHEMA_ID('" . $schema . "')";
+
+	runsql($bid, $query, $null, $server);
+}
+
+# list schemas in a database
+# usage: sql-schemas <database> [server]
+alias sql-schemas {
+	$bid = $1;
+	$database = $2;
+	$server = $3;
+
+	# check args
+	if (!$database) {
+		blog($bid, "sql-schemas <database> [server]");
+		return;
+	}
+
+	$query = "USE $database ; ";
+	$query .= "SELECT name FROM sys.schemas";
+
+	runsql($bid, $query, $null, $server);
+}
+
+# helper: invoke sqldump powershell script
+# do_sqldump(bid, outfile, listing = false, database = all, $top = all, $table = None, $columns = None, server = '127.0.0.1', no_load_script = False)
+sub do_sqldump {
+	local('$bid $outfile $listing $database $server $top $table $columns $no_load_script $powershell');
+	$bid = $1;
+	$outfile = $2;
+
+	# named args:
+	#  - $listing
+	#  - $database
+	#  - $server
+	#  - $top
+	#  - $table
+	#  - $columns
+	#  - $no_load_script
+
+	# defaults
+	if (!$server) {
+		$server = '127.0.0.1';
+	}
+
+	# extra flags
+	$flags = '';
+	if ($listing) {
+		$flags .= ' -DryRun ';
+	}
+	if ($top) {
+		$flags .= " -Top $top ";
+	}
+	if ($table) {
+		$flags .= " -TableFilter $table ";
+	}
+	if ($columns) {
+		$flags .= " -Columns $columns ";
+	}
+
+	# for sqldump-batch
+	if (!$no_load_script) {
+		bpowershell_import!($bid, $sqldump_ps1);
+	}
+
+	$powershell = "Write-Host 'Starting dump'; ";
+
+	if ($database) {
+		$powershell .= "Invoke-SQLDumpDatabase $flags -Database $database -Server $server";
+	} else {
+		$powershell .= "Invoke-SQLDumpAll $flags -Server $server";
+	}
+	$powershell .= " | Set-Content -Encoding UTF8 -Path $outfile ; ";
+	$powershell .= "Write-Host 'Database dump finished';";
+
+	bpowerpick!($bid, $powershell);
+}
+
+# invoke sqldump powershell script
+# usage: sqldump <outfile> [database] [server]
+alias sqldump {
+	local('$bid $outfile $database $server');
+	$bid = $1;
+	$outfile = $2;
+	$database = $3;
+	$server = $4;
+
+	# check args
+	if (!$outfile) {
+		blog($bid, "sqldump <outfile> [database] [server]");
+		return;
+	}
+
+	do_sqldump($bid, $outfile, $database => $database, $server => $server);
+}
+
+# invoke sqldump powershell script, filter to specific tables and/or columns
+# usage: sqldump-filtered <outfile> [table] [columns] [database] [server]
+alias sqldump-filtered {
+	local('$bid $outfile $database $server');
+	$bid = $1;
+	$outfile = $2;
+	$table = $3;
+	$columns = $4;
+	$database = $5;
+	$server = $6;
+
+	# check args
+	if (!$outfile) {
+		blog($bid, "sqldump-filtered <outfile> [table] [columns] [database] [server]");
+		return;
+	}
+
+	do_sqldump($bid, $outfile, $table => $table, $columns => $columns, $database => $database, $server => $server);
+}
+
+# invoke sqldump powershell script, list tables and their columns
+# usage: sqldump-listing <outfile> [database] [server]
+alias sqldump-listing {
+	local('$bid $outfile $database $server');
+	$bid = $1;
+	$outfile = $2;
+	$database = $3;
+	$server = $4;
+
+	# check args
+	if (!$outfile) {
+		blog($bid, "sqldump-listing <outfile> [database] [server]");
+		return;
+	}
+
+	do_sqldump($bid, $outfile, $listing => true, $database => $database, $server => $server);
+}
+
+# invoke sqldump powershell script, sample first rows
+# usage: sqldump-sample <outfile> [database] [top count] [server]
+alias sqldump-sample {
+	local('$bid $outfile $top $database $server');
+	$bid = $1;
+	$outfile = $2;
+	$database = $3;
+	$top = $4;
+	$server = $5;
+
+	# check args
+	if (!$outfile) {
+		blog($bid, "sqldump-sample <outfile> [database] [top count] [server]");
+		return;
+	}
+
+	# defaults
+	if (!$top) {
+		$top = 2;
+	}
+
+	do_sqldump($bid, $outfile, $top => $top, $database => $database, $server => $server);
+}
+
+# dump table (use fully-qualified name)
+# usage: sqldump-table <table> <outfile> [server]
+alias sqldump-table {
+	local('$bid $outfile $table $server');
+	$bid = $1;
+	$table = $2;
+	$outfile = $3;
+	$server = $4;
+
+	# check args
+	if (!$outfile || !$table) {
+		blog($bid, "sqldump-table <table> <outfile> [server]");
+		return;
+	}
+
+	runsql($bid, "SELECT * FROM $table", $outfile, $server);
+}
+
+# dump list of tables from a file (uses sqldump table filter)
+# output directory will be like:
+#  - out/
+#  -   server1/
+#  -     table1.dump
+#  -     table2.dump
+#  -   server2/
+#  -     table1.dump
+#  -     table2.dump
+# usage: sqldump-tables <outdir> <tablelist> [servers (comma separator)]
+alias sqldump-batch {
+	local('$bid $outdir $tablelist $servers @servers');
+	$bid = $1;
+	$outdir = $2;
+	$tablelist = $3;
+	$servers = $4;
+
+	# check args
+	if (!$outdir) {
+		blog($bid, "sqldump-batch <outdir> <tablelist> [servers (comma separator)]");
+		return;
+	}
+
+	# file dialog for tablelist
+	if (!$tablelist) {
+		prompt_file_open('Table list file', $null, false, {
+			$tablelist = $1;
+		});
+		if (!$tablelist) {
+			return;
+		}
+	}
+
+	# default server is localhost
+	if (!$servers) {
+		$servers = '127.0.0.1';
+	}
+
+	bpowershell_import!($bid, $sqldump_ps1);
+	bmkdir!($bid, $outdir);
+
+	@servers = split(',', $servers);
+
+	# get table list
+	$handle = openf($tablelist);
+	if (!$handle) {
+		blog($bid, "couldn't open table list $tablelist");
+		return;
+	}
+	@tables = readAll($handle);
+	closef($handle);
+
+	foreach $server (@servers) {
+		if (size(@servers) == 1) {
+			$serverout = $outdir
+		} else {
+			$serverout = $outdir . '/' . $server;
+			bmkdir!($bid, $serverout);
+		}
+		blog($bid, "Dumping server $server to $serverout");
+
+		foreach $table (@tables) {
+			@parts = split("\t", $table);
+			$table = @parts[0];
+
+			# optional column filter
+			if (size(@parts) >= 2) {
+				$columns = @parts[1];
+			} else {
+				$columns = $null;
+			}
+
+			if ($columns) {
+				blog($bid, "Dumping $columns from table $table on $server");
+			} else {
+				blog($bid, "Dumping table $table on $server");
+			}
+
+			$outfile = $serverout . '/' . $table . '.dump';
+
+			# do_sqldump(bid, outfile, listing = false, database = all, $top = all, $table = None, $columns = all, server = '127.0.0.1')
+			do_sqldump($bid, $outfile, $table => $table, $columns => $columns, $server => $server, $no_load_script => true);
+		}
+	}
+}

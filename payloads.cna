@@ -1,0 +1,30 @@
+# Generate all raw payloads. Output to a directory. 
+command payloads {
+	local('$out_dir');
+	$out_dir = $1;
+
+    mkdir($out_dir);
+    foreach $listener (listeners()) {
+		println($listener)
+		foreach $arch (@('x86', 'x64')) {
+			foreach $format (@('raw', 'exe')) {
+				foreach $type (@('stager', 'stageless')) {
+					if ($type eq 'stager') {
+						$payload = artifact_stager($listener, $format, $arch);
+					} else {
+						if ($format eq 'exe') {
+							continue;
+						}
+						$payload = payload($listener, $arch, "thread");
+					}
+
+					$out = $out_dir . '/' . $listener . '.' . $type . '.' . $arch . '.' . $format;
+					println('writing to ' . $out);
+					$handle = openf(">" . $out);
+					writeb($handle, $payload);
+					closef($handle);
+				}
+			}
+		}
+	}
+}

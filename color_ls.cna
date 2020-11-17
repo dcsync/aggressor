@@ -1,0 +1,43 @@
+set BEACON_OUTPUT_LS {
+	local('$out @results $cwd $entry $type $size $modified $name');
+	@results = split("\n", ["$2" trim]);
+
+	$cwd = left(shift(@results), -1);	# first entry is the current folder
+
+	# parse/process results
+	foreach $entry (@results) {
+		($type, $size, $modified, $name) = split("\t", $entry);
+		if ($type eq "F") {
+			$entry = %(type => "fil", size => format_size($size), modified => $modified, name => $name);
+		}
+		else if ($type eq "D" && $name ne "." && $name ne "..") {
+			$entry = %(type => "dir", size => "", modified => $modified, name => $name);
+		}
+		else {
+			remove();
+		}
+	}
+
+	# sort in alpha order with dir listings on top.
+	sort({ return ($1['type'] . lc($1['name'])) cmp ($2['type'] . lc($2['name'])); }, @results);
+
+	$out .= "\cC[*]\o Listing: $cwd $+ \n\n";
+	$out .= " Size     Type    Last Modified         Name\n";
+	$out .= "\cE ----     ----    -------------         ----\n";
+
+	foreach $entry (@results) {
+		($type, $size, $modified, $name) = values($entry, @('type', 'size', 'modified', 'name'));
+		if ($type eq 'dir') {
+			# color orange
+			$color = "\c7";
+		} else if ($name ismatch '.*\.exe' || $name ismatch '.*\.ps1' || $name ismatch '.*\.bat' || $name ismatch '.*\.cmd') {
+			# color green
+			$color = "\c3";
+		} else {
+			$color = '';
+		}
+		$out .= " $[8]size $[7]type $[21]modified$color $name $+ \n";
+	}
+
+	return $out;
+}
