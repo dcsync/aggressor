@@ -1,0 +1,85 @@
+browser	OS: Computer Browser
+lsarpc	OS: LSASS RPC
+spoolss	OS: Print Spooler
+360OnAccessGet	360 Safe
+360OnAccessSet	360 Safe
+aswUpdSv	alwil Avast Professional 4.8 Avast Internet Security v5.0
+afwCallbackPipe2	Avast Internet Security 5.0
+afwCallbackPipe2	Avast Internet Security 5.0
+aswUpdSv	Avast pro 4.8 or Avast IS v5.0
+_pspuser_780_AVGIDSMONITOR.EXE_9d97da47-8de1-4699-b3da-9eafb262f2a4	AVG IS 8.5
+AVG7B14C58C-E30D-11DB-B553-F88A56D89593	AVG IS 8.5
+AvgFwS8.WDCommunicationPipe1	AVG IS 8.5
+AvgFwS8.WDCommunicationPipe2	AVG IS 8.5
+AvgTrayPipeName000176	AVG IS 8.5
+AvgTrayPipeName0001761	AVG IS 8.5
+AvgTrayPipeName0001762	AVG IS 8.5
+AvgFwS8.WDCommunicationPipe	AVG IS 8.5-9.0
+_pspuser_3620_AVGIDSMONITOR.EXE_9fde9445-f261-4985-a056-fb033d1a64cd	AVG IS 9.0.646
+AVG-CHJW-0B47172B-B945-42f8-AA88-8D4F98F660DB	AVG IS 9.0.646
+AVG-CHJW-C81C2B71-E0F0-44cb-B6A7-15999D0F539A	AVG IS 9.0.646
+AvgFw.WDCommunicationPipe	AVG IS 9.0.646
+AvgFw.WDCommunicationPipe1	AVG IS 9.0.646
+AvgFw.WDCommunicationPipe2	AVG IS 9.0.646
+AvgTrayPipeName000840	AVG IS 9.0.646
+AvgTrayPipeName0008401	AVG IS 9.0.646
+AvgTrayPipeName0008402	AVG IS 9.0.646
+AvgUIPipeName002788	AVG IS 9.0.646
+AvgUIPipeName0027881	AVG IS 9.0.646
+AvgUIPipeName0027882	AVG IS 9.0.646
+AveSvc_EngineDienst200705311802	Avira Antivirus Personal Edition Premium v7.06
+AveSvc_EngineService2008	Avira Premium Security Suite v7
+avguard01	Avira Premium Sec Suite  v8
+AVSCAN_REP_000000000000c883	Avira Premium Sec Suite  v8
+AVWebCatServer0	Avira Premium Sec Suite  v8
+AVWebGuardServer	Avira Premium Sec Suite  v8
+AVWebProtServer0	Avira Premium Sec Suite  v8
+AveSvc_EngineService2008	Avira Premium Sec Suite  v8
+bdantiphishing	BitDefender 2010 v13
+bdantiphishing	BitDefender TotalSec 2010 v13.0.11
+bdantispam	BitDefender TotalSec 2010 v13.0.11
+EXTREG	BitDefender TotalSec 2010 v13.0.11
+LIVESRV	BitDefender TotalSec 2010 v13.0.11 Bit Defender Total Security 2009
+MIDASCOMM_SERVER	BitDefender TotalSec 2010 v13.0.11 Bit Defender Total Security 2009
+VSSERV	BitDefender TotalSec 2010 v13.0.11 Bit Defender Total Security 2009
+__fships_hook_server__	FSecure 2010
+__fships_injector__	FSecure 2010
+rcn_18871562230061	FSecure 2010
+rcn_47843719166	FSecure 2010
+rcn_49140823412	FSecure 2010
+rcn_491711751329	FSecure 2010
+rcn_50406860721	FSecure 2010
+rcn_507341306237	FSecure 2010
+rcn_51109653602	FSecure 2010
+rcn_520781201855	FSecure 2010
+rcn_520932065562	FSecure 2010
+rcn_520932267096	FSecure 2010
+rcn_522811486723	FSecure 2010
+rcn_530461792332	FSecure 2010
+rcn_53156781683	FSecure 2010
+rcn_564531165073	FSecure 2010
+rcn_580461750377	FSecure 2010
+rcn_621562061643	FSecure 2010
+rcn_637501693024	FSecure 2010
+rcn_63750782962	FSecure 2010
+rcn_647032361703	FSecure 2010
+rcn_655781047893	FSecure 2010
+rcn_655931694327	FSecure 2010
+rcn_662811357824	FSecure 2010
+rcn_67953938451	FSecure 2010
+rcn_682651449794	FSecure 2010
+rcn_685151921711	FSecure 2010
+nai_vseconsole01	McAfee 8.7i
+nai_vseconsole01	McAfee 8.7i
+Symantec_{F9698F61-2E57-469B-B29B-1EFB17827356}_{0C55C096-0F1D-4F28-AAA2-85EF591126E7}	Norton Internet Security 2010
+Symantec Core LC	Norton IS 2008
+Symantec_{586D4B8E-3DBB-4E4O-9A7E-4670F760FAC4}_{0C55C096-0F1D-4F28-AAA2-85EF591126E7}	Norton360 v4; Norton IS 2009; Norton IS 2010; Norton 360 v4
+Symantec_{EF903280-DA47-4C1B-99F8-EC15E7900956}_{0C55C096-0F1D-4F28-AAA2-85EF591126E7}	Norton360 v4
+acsipc_server	Outpost Security Suite Pro 2009 v6.5
+pavfnlpc	Panda IS 2010 v15
+Global\PNMIPC_SH_IPT-WebProxy	Panda IS 2010 v15
+pavfnlpc	Panda IS 2010 v15
+PavTPU\TPK_Event_1504	Panda IS 2010 v15
+Sophos@BOPSv3	Sophos 9.0
+NP2970625197SRV	TrendMicro IS 2010 v17.50
+vmware-usbarbpipe	VMWare Host

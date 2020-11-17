@@ -1,0 +1,140 @@
+# include like:
+# include(script_resource("utils.cna"));
+
+# return random string of length $1. uses characters a-zA-Z0-9
+sub randstr {
+	local('$length $ret $charset');
+	$length = $1;
+
+	$charset = 'abcdefghijklmnopqrstuvwxyz' . 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+	for ($i = 0; $i < $length; $i++) {
+		$index = rand() * 1000 % strlen($charset);
+		$ret .= charAt($charset, $index);
+	}
+
+	return $ret;
+}
+
+# return random number between $1 and $2 or up to $1
+sub rrand {
+	if ($2) {
+		$min = $1;
+		$max = $2;
+	} else {
+		$min = 0;
+		$max = $1;
+	}
+
+	return (rand() * 10000) % ($max - $min + 1) + $min;
+}
+
+# return random number of spaces between 1 and $1
+sub randspace {
+	$max = $1;
+
+	$ret = '';
+	$num = rrand(1, $max);
+	for ($i = 0; $i < $num; $i++) {
+		$ret .= ' ';
+	}
+
+	return $ret;
+}
+
+# return random number of newlines between 1 and $1
+sub randlines {
+	$max = $1;
+
+	$ret = '';
+	$num = rrand(1, $max);
+	for ($i = 0; $i < $num; $i++) {
+		$ret .= "\n";
+	}
+
+	return $ret;
+}
+
+# check if beacon is admin (including SYSTEM)
+sub isAdmin {
+	local('$bid $user');
+
+	$bid = $1;
+
+	if (-isadmin($bid)) {
+		return true;
+	}
+
+	$user = beacon_info($bid, 'user');
+	if (lc($user) eq 'system') {
+		return true;
+	}
+
+	return false;
+}
+
+sub pspath {
+	return 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe';
+
+	#$bid = $1;
+	#if ($bid && -is64 $bid) {
+	#	return 'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe';
+	#} else {
+	#	return 'C:\Windows\powershell.exe';
+	#}
+}
+
+# findprocess(bid, proc, callback)
+sub findprocess {
+	$bid = $1;
+	$proc = $2;
+	$callback = $3;
+
+	bps($bid, lambda({
+		local('$pid $name $entry $bid $content');
+		$bid = $1;
+		$content = $2;
+
+		@procs = @();
+		foreach $entry (split("\n", $content)) {
+			($name, $null, $pid, $arch) = split("\\s+", $entry);
+			if ($name eq $proc) {
+				push(@procs, %(pid => $pid, arch => $arch));
+			}
+		}
+
+		[$callback: $bid, @procs]
+	}, $callback => $callback, $proc => $proc));
+}
+
+# defaultListener()
+sub defaultListener {
+	foreach $listener (listeners_local()) {
+		if (($listener ismatch 'http.*') || ($listener ismatch 'main_.*')) {
+			return $listener;
+		}
+	}
+	return $null;
+}
+
+# explorerstome(bid, file)
+sub explorerstomp {
+	$bid = $1;
+	$file = $2;
+
+	btimestomp($bid, $file, 'c:/windows/explorer.exe');
+}
+
+# uploadto(bid, local_file, remote_file)
+sub uploadto {
+	$bid = $1;
+	$local_file = $2;
+	$remote_file = $3;
+
+	# read in file
+	$handle = openf($local_file);
+	$data = readb($handle, -1);
+	closef($handle);
+
+	bupload_raw($bid, $remote_file, $data, $local_file);
+}
