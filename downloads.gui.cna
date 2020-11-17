@@ -1,0 +1,87 @@
+menubar("Downloads", "downloads", 2);
+
+popup downloads {
+	item "Sync" {
+		sub thread {
+			$total_downloads = 0;
+			$downloads_finished = 0;
+			$lock = semaphore();
+
+			# <host>/<path>/<name>
+			$total_downloads = size(downloads());
+			foreach $download (downloads()) {
+				# TODO fix
+				#println("waiting");
+				#acquire($lock);
+
+				$host = $download['host'];
+				$name = $download['name'];
+				$lpath = $download['lpath'];
+
+				# try to find the user/computer name
+				$user = 'unknown';
+				$host = 'unknown';
+				foreach $beacon (beacons()) {
+					if ($beacon['internal'] eq $host) {
+						$host = $beacon['computer'];
+						$user = $beacon['user'];
+						break;
+					}
+				}
+
+				$dir = $chosen . '/' . $host . '_' . $computer . '_' . $user . '/' . $download['path'];
+				$dir = replace($dir, '\\\\', '/');
+				mkdir($dir);
+				$full_path = $dir . $name;
+				if (-exists($full_path)) {
+					println('already exists. not syncing ' . $lpath . ' to ' . $full_path);
+				} else {
+					println('syncing ' . $lpath . ' to ' . $full_path);
+					#$tmp_path = $full_path . '.tmp';
+
+					sub sync_callback {
+						println("$full_path finished");
+						return;
+
+						# move tmp file
+						rename($tmp_path, $full_path);
+
+						# progress message
+						$downloads_finished++;
+						$mod = $total_downloads / 50;
+						if ($mod == 0) {
+							$mod = $downloads_finished;
+						}
+						if ($downloads_finished % $mod == 0 || $downloads_finished == $total_downloads) {
+							privmsg(mynick(), "$downloads_finished of $total_downloads finished");
+						}
+
+						# next file
+						# TODO fix
+						#release($lock);
+					}
+
+					# TODO fix
+					#sync_download($lpath, $tmp_path, &sync_callback);
+					sync_download($lpath, $full_path, &sync_callback);
+				}
+			}
+		}
+
+		sub callback {
+			$chosen = $1;
+
+			if (!$chosen) {
+				return;
+			}
+
+			fork(&thread, $chosen => $chosen);
+		}
+
+		prompt_directory_open("Directory to sync files to", $null, false, &callback);
+	}
+
+	item "View" {
+		openDownloadBrowser();
+	}
+}

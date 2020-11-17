@@ -1,0 +1,7 @@
+# eval aggressor script, with $b and bid set to BID
+alias eval {
+    $bid = $1
+    $b = bid
+    $code = $2
+    eval($code)
+}

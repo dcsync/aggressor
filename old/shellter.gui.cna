@@ -1,0 +1,86 @@
+include(script_resource("utils.cna"));
+include(script_resource("shellter.cna"));
+
+popup attacks {
+	menu "Shellter" {
+		item "For listener" {
+			shellterListenerDialog();
+		}
+		item "For shellcode" {
+			shellterShellcodeDialog();
+		}
+		item "For winexec" {
+			shellterWinexecDialog();
+		}
+		item "For powershell" {
+			shellterWinexecDialog();
+		}
+	}
+}
+
+sub shellterListenerDialog {
+	local('%defaults');
+
+	%defaults['encrypt'] = 'true';
+
+	$dialog = dialog('Shellter', %defaults, &shellterGenerate);
+	dialog_description($dialog, "Generate an executable or dll with shellter (win32/x86 only)");
+
+	drow_file($dialog, 'file', 'File: ');
+	drow_file($dialog, 'save', 'Save to: ');
+	drow_listener($dialog, 'listener', 'Listener: ');
+	drow_checkbox($dialog, 'stageless', 'Stageless: ', 'Use stageless payload');
+	drow_checkbox($dialog, 'encrypt', 'Encrypt: ', 'Encrypt payload with msfvenom');
+	drow_checkbox($dialog, 'stealth', 'Stealth: ', 'Enable stealth mode');
+
+	dbutton_action($dialog, 'Generate');
+	dialog_show($dialog);
+}
+
+sub shellterShellcodeDialog {
+	local('%defaults');
+
+	%defaults['encrypt'] = 'true';
+
+	$dialog = dialog('Shellter', %defaults, &shellterGenerate);
+	dialog_description($dialog, "Generate an executable or dll with shellter (win32/x86 only)");
+
+	drow_file($dialog, 'file', 'File: ');
+	drow_file($dialog, 'save', 'Save to: ');
+	drow_file($dialog, 'shellcode', 'Shellcode: ');
+	drow_checkbox($dialog, 'encrypt', 'Encrypt: ', 'Encrypt payload with msfvenom');
+	drow_checkbox($dialog, 'stealth', 'Stealth: ', 'Enable stealth mode');
+
+	dbutton_action($dialog, 'Generate');
+	dialog_show($dialog);
+}
+
+sub shellterWinexecDialog {
+	local('%defaults');
+
+	$dialog = dialog('Shellter', %defaults, &shellterGenerate);
+	dialog_description($dialog, "Generate an executable or dll with shellter (win32/x86 only)");
+
+	drow_file($dialog, 'file', 'File: ');
+	drow_file($dialog, 'save', 'Save to: ');
+	drow_text($dialog, 'winexec', 'Winexec: ');
+	drow_checkbox($dialog, 'stealth', 'Stealth: ', 'Enable stealth mode');
+
+	dbutton_action($dialog, 'Generate');
+	dialog_show($dialog);
+}
+
+sub shellterPowershellDialog {
+	local('%defaults');
+
+	$dialog = dialog('Shellter', %defaults, &shellterGenerate);
+	dialog_description($dialog, "Generate an executable or dll with shellter (win32/x86 only)");
+
+	drow_file($dialog, 'file', 'File: ');
+	drow_file($dialog, 'save', 'Save to: ');
+	drow_text($dialog, 'powershell', 'Powershell: ');
+	drow_checkbox($dialog, 'stealth', 'Stealth: ', 'Enable stealth mode');
+
+	dbutton_action($dialog, 'Generate');
+	dialog_show($dialog);
+}
